@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using newProject.Models;
 using NewProject.Data;
 using NewProject.Models;
 using System.Collections.Generic;
@@ -20,9 +21,29 @@ namespace NewProject.Controllers
 
         // GET: 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Player>>> GetPlayers()
+        public async Task<ActionResult<IEnumerable<PlayerWithItemsDto>>> GetPlayers()
         {
-            return await _context.Players.Include(p => p.Items).ToListAsync();
+            var player = await _context.Players
+                .Include(p => p.Items)
+                .Select(p => new PlayerWithItemsDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Items = p.Items.Select(i => new ItemDto
+                    {
+                        Name = i.Name,
+                        Price = i.Price,
+                        PlayerId = i.PlayerId
+                    }).ToList()
+                })
+                .ToListAsync();
+
+                if (player == null || player.Count == 0)
+                {
+                    return NotFound();
+                }
+
+            return Ok(player);
         }
 
         // POST: api/Players
