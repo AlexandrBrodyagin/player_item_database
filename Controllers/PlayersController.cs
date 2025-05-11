@@ -23,13 +23,12 @@ namespace NewProject.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PlayerWithItemsDto>>> GetPlayers()
         {
-            var player = await _context.Players
-                .Include(p => p.Items)
+            var players = await _context.Players
                 .Select(p => new PlayerWithItemsDto
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    Items = p.Items.Select(i => new ItemDto
+                    Items = (p.Items ?? new List<Items>()).Select(i => new ItemDto
                     {
                         Name = i.Name,
                         Price = i.Price,
@@ -38,12 +37,12 @@ namespace NewProject.Controllers
                 })
                 .ToListAsync();
 
-                if (player == null || player.Count == 0)
+                if (players == null)
                 {
                     return NotFound();
                 }
 
-            return Ok(player);
+            return players;
         }
 
         // POST: api/Players
