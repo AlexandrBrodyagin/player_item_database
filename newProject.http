@@ -1,0 +1,6 @@
+@newProject_HostAddress = http://localhost:5277
+
+GET {{newProject_HostAddress}}/api/players/
+Accept: application/json
+
+###
